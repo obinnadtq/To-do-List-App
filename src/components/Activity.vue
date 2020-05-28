@@ -5,7 +5,11 @@
     <div v-for="todo in todosFiltered" :key="todo.id" class="todo-item">
       <div class="todo-item-left">
         <input type="checkbox" v-model="todo.completed">
-        <div>{{todo.title}}</div>
+        <div v-if="!todo.editing" @dblclick="editTodo(todo)" class="todo-item-label" :class="{completed: todo.completed}">{{todo.title}}</div>
+        <input v-else class="todo-item-edit" v-model="todo.title" @keyup.enter="doneEdit(todo)" @keyup.esc="cancelEdit(todo)" v-focus>
+      </div>
+      <div class="delete-item" @click="removeTodo(index)">
+        &times;
       </div>
 
     </div>
@@ -21,7 +25,8 @@ export default {
       todos: [],
       newTodo: "",
       idForTodo: 1,
-      filter: "all"
+      filter: "all",
+      beforeEditing: ""
     };
   },
   methods: {
@@ -35,6 +40,25 @@ export default {
       });
       this.newTodo = "";
       this.idForTodo++;
+    },
+
+    removeTodo(index) {
+      this.todos.splice(index, 1)
+    },
+
+    editTodo(todo) {
+      this.beforeEditing = todo.title;
+      todo.editing = true;
+    },
+    doneEdit(todo) {
+      if(todo.title.trim() == ""){
+        todo.title = this.beforeEditing
+      }
+      todo.editing = false;
+    },
+    cancelEdit(todo) {
+      todo.title = this.beforeEditing;
+      todo.editing = false;
     }
   },
   computed: {
@@ -50,6 +74,14 @@ export default {
         return this.todos.filter(todo => todo.completed)
       }
       return this.todos;
+    }
+  },
+
+  directives: {
+    focus: {
+      inserted: function(el){
+        el.focus()
+      }
     }
   }
 };
@@ -76,5 +108,22 @@ export default {
 .todo-item-left{
   display: flex;
   align-items: center;
+}
+
+.delete-item {
+  cursor: pointer;
+}
+
+.todo-item-label {
+  padding: 10px;
+  margin-left: 12px;
+}
+
+.todo-item-edit {
+  margin-left: 12px;
+}
+
+.completed {
+  text-decoration: line-through;
 }
 </style>
