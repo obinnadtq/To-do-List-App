@@ -11,9 +11,19 @@
       <div class="delete-item" @click="removeTodo(index)">
         &times;
       </div>
-
     </div>
     </transition-group>
+    <div class="extra-container">
+      <div><label><input type="checkbox" :checked="!anyRemainingTodo" @change="checkAllTodos">Check All</label></div>
+      <div>{{remainingTodo}} items left</div>
+    </div>
+    <div class="extra-container">
+      <div>
+        <button :class="{active: filter=='all'}" @click="filter= 'all'">All</button>
+        <button :class="{active: filter =='active'}" @click="filter = 'active'">Active</button>
+        <button :class="{active: filter=='completed'}" @click="filter = 'completed'">Completed</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -59,6 +69,9 @@ export default {
     cancelEdit(todo) {
       todo.title = this.beforeEditing;
       todo.editing = false;
+    },
+    checkAllTodos() {
+      this.todos.forEach((todo) => todo.completed = event.target.checked)
     }
   },
   computed: {
@@ -74,6 +87,14 @@ export default {
         return this.todos.filter(todo => todo.completed)
       }
       return this.todos;
+    },
+
+    remainingTodo () {
+      return this.todos.filter(todo => !todo.completed).length;
+    },
+
+    anyRemainingTodo() {
+      return this.remainingTodo != 0;
     }
   },
 
@@ -125,5 +146,19 @@ export default {
 
 .completed {
   text-decoration: line-through;
+}
+
+.extra-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  border-top: 1px solid lightgray;
+  padding-top: 14px;
+  margin-bottom: 14px;
+}
+
+.active{
+background-color: lightgreen;
 }
 </style>
